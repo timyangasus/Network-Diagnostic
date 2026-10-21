@@ -5,301 +5,339 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#56B7FF">
+<meta name="theme-color" content="#57B7FF">
 <title>Network Diagnostic</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#F4F6FB;--w:#fff;--s2:#F0F2F8;
-  --bd:#E4E8F2;--bd2:#CDD3E8;
-  --tx:#0C1120;--t2:#46526E;--t3:#8A93AA;
-  --ac:#4A8FE0;
-  --r:16px;--r2:12px;
-  --f:'DM Sans',sans-serif;
-  --sh:0 2px 16px rgba(0,0,0,.06);
+  --tx:#283745;--t2:#5F6B76;--t3:#929292;--bd:#E6E9EC;
+  --blue:#4A8FE0;--ok:#65C4B9;--warn:#FF9643;--fail:#D95B47;
+  --f:'DM Sans',-apple-system,'PingFang TC','Noto Sans TC',sans-serif;
 }
-html,body{width:100%;height:100%;overflow:hidden;background:#D8DCE8;font-family:var(--f)}
+html,body{width:100%;height:100%;overflow:hidden;background:#D8DCE8;font-family:var(--f);color:var(--tx)}
 body{display:flex;align-items:center;justify-content:center}
-.phone{width:393px;height:852px;max-height:100%;background:var(--w);overflow:hidden;position:relative;display:flex;flex-direction:column;flex-shrink:0}
+.phone{width:393px;height:852px;max-height:100%;background:#fff;overflow:hidden;position:relative;flex-shrink:0}
 @media (max-width:430px){.phone{width:100%;height:100dvh;max-height:none}}
-.sub{display:none;position:absolute;inset:0;z-index:10;flex-direction:column;background:var(--bg)}
-.sub.on{display:flex}
+.page{display:none;position:absolute;inset:0;flex-direction:column;background:#fff}
+.page.on{display:flex}
 .ov{display:none;position:absolute;inset:0;z-index:20;background:rgba(12,17,32,.5);align-items:flex-end}
 .ov.on{display:flex}
-.sheet{background:var(--w);border-radius:24px 24px 0 0;width:100%;padding:20px 20px 48px;max-height:86%;overflow-y:auto}
-.hdl{width:36px;height:4px;background:var(--bd2);border-radius:2px;margin:0 auto 18px}
+.sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;padding:20px 20px 40px}
+.hdl{width:36px;height:4px;background:#CDD3E8;border-radius:2px;margin:0 auto 18px}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* list / traffic pages */
+.navbar{display:flex;align-items:center;justify-content:center;position:relative;height:56px;flex-shrink:0;padding-top:6px}
+.navbar .ttl{font-size:15px;font-weight:500;color:var(--blue)}
+.navbar .bk{position:absolute;left:18px;top:12px;width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.listrow{display:flex;align-items:center;justify-content:space-between;padding:0 18px;height:58px;border-bottom:1px solid var(--bd);font-size:16px;cursor:pointer}
+.listrow:first-of-type{border-top:1px solid var(--bd)}
+
+/* diagnostic hero */
+#hero{flex-shrink:0;position:relative;padding:0 0 74px;transition:background .5s}
+.hnav{display:flex;align-items:center;justify-content:center;position:relative;height:44px;margin-top:18px}
+.hnav .bk{position:absolute;left:12px;top:4px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.hnav .t{font-size:16px;font-weight:600;color:#fff}
+.hrow{display:flex;align-items:center;gap:15px;padding:20px 28px 0 36px}
+#hicon{width:68px;height:68px;border-radius:50%;background:rgba(0,0,0,.13);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#htitle{font-size:21px;font-weight:500;color:#fff;line-height:1.25}
+#hsub{font-size:11.5px;color:rgba(255,255,255,.95);line-height:1.45;margin-top:3px}
+#hbtn{display:flex;align-items:center;justify-content:center;width:160px;height:44px;margin:24px auto 0;background:#fff;border-radius:22px;font-size:14.5px;font-weight:700;cursor:pointer;color:var(--tx);transition:opacity .2s}
+
+/* steps */
+.sec{font-size:14px;color:var(--tx);padding:0 30px;margin-top:-34px;position:relative;z-index:1;height:20px;cursor:pointer}
+#steps{padding-top:18px;overflow-y:auto;flex:1;min-height:0}
+.row{position:relative;display:flex;gap:14px;padding:14px 31px 14px 30px}
+.row .line{position:absolute;left:44px;top:44px;bottom:-14px;width:1.5px;background:#E3E7EA;z-index:0}
+.row .ic{position:relative;z-index:1;width:30px;height:30px;border-radius:50%;background:#F0F3F6;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.row .main{flex:1;min-width:0}
+.row .top{height:30px;display:flex;align-items:center;justify-content:space-between}
+.row .lbl{font-size:16px;font-weight:500;color:var(--tx)}
+.row .desc{font-size:11px;color:var(--t3);margin-top:-3px;line-height:1.5}
+.row .box{margin:7px 26px 0 0;background:#FCF0EE;border:1px solid var(--fail);border-radius:8px;padding:9px 12px}
+.row .box b{display:block;font-size:12px;color:var(--fail);margin-bottom:3px}
+.row .box span{font-size:11px;color:#7C7C7C;line-height:1.5;display:block}
+.sb{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.dash{font-size:14px;color:#8B939A;letter-spacing:2px}
+.spin{width:18px;height:18px;border-radius:50%;border:2px solid #D9DDE1;border-top-color:#7A828A;animation:spin .7s linear infinite}
+
+/* home-style entry page (網路流量頁) */
+.hhead{display:flex;align-items:center;justify-content:space-between;height:56px;padding:6px 16px 0;flex-shrink:0}
+.hhead .g{width:34px;height:34px;border-radius:50%;background:#EEEEEE;display:flex;align-items:center;justify-content:center}
+.hhead .ht{font-size:17px;font-weight:700;color:#4DA3FF}
+.hcard{display:flex;align-items:center;margin:8px 18px 0;background:#fff;border-radius:6px;box-shadow:0 2px 12px rgba(80,140,255,.28);padding:12px 14px;flex-shrink:0}
+.hcard .th{width:86px;text-align:center;font-size:11px;color:#2B6CF0;flex-shrink:0}
+.hcard .info{flex:1;padding-left:10px;font-size:12px;color:#777;line-height:1.55}
+.hcard .info b{display:block;font-weight:500;color:#2B6CF0}
+.hcard .sp{width:1px;align-self:stretch;background:#C9D8F5;margin:0 14px}
+.welcome{text-align:center;color:#4DA3FF;font-size:29px;font-weight:300;margin-top:34px}
+.model{text-align:center;color:#4DA3FF;font-size:22px;font-weight:400;margin-top:20px}
+.rt{width:114px;height:103px;margin:56px auto 0;border-radius:10px;background:linear-gradient(90deg,#E9EAEC 0,#FAFAFB 7%,#fff 50%,#FAFAFB 93%,#E6E7E9 100%);box-shadow:0 18px 22px -14px rgba(0,0,0,.28),inset 0 -10px 0 #F1F1F2;position:relative}
+.rt::after{content:'ASUS';position:absolute;left:0;right:0;bottom:16px;text-align:center;font-size:7px;letter-spacing:.8px;color:#C9B27A;font-weight:700}
+.dots{display:flex;gap:9px;justify-content:center;margin-top:26px}
+.dots i{width:9px;height:9px;border-radius:50%;background:#BCD6F6}
+.dots i:first-child{background:#2B7DE9}
+.qa{display:flex;justify-content:space-around;padding:20px 40px 16px}
+.abar{display:flex;align-items:center;gap:10px;height:62px;background:#F0902D;color:#fff;padding:0 16px;flex-shrink:0}
+.abar .tx{flex:1;font-size:14.5px}
+.abar .bt{border:1.5px solid #fff;border-radius:16px;height:32px;padding:0 16px;display:flex;align-items:center;font-size:13.5px;font-weight:500;cursor:pointer}
+.tabbar{display:flex;height:74px;background:#fff;border-top:1px solid #ECECEC;padding:8px 6px 0;flex-shrink:0}
+.tabbar .t{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:#7B7F85;position:relative;cursor:default}
+.tabbar .t.on{color:#2B7DE9}
+.tabbar .t.go{cursor:pointer}
+.tabbar .bd{position:absolute;top:-3px;left:calc(50% + 6px);min-width:17px;height:17px;border-radius:9px;background:#2B7DE9;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
 <div class="phone">
-  <div class="sub on" id="sub-diag">
-    <!-- full-bleed header: nav + hero merged into one colored block -->
-    <div id="diag-hero" style="background:linear-gradient(140deg,#90BFF5,#4D95EA,#3B87E0);flex-shrink:0;transition:background .5s ease">
-      <div style="display:flex;align-items:center;gap:12px;padding:24px 20px 24px">
-        <div id="diag-back" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
-        <div style="font-size:17px;font-weight:600;color:#fff">Network Diagnostic</div>
-      </div>
-      <div style="padding:16px 24px 56px">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px">
-          <div id="diag-hero-icon" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
-          <div style="flex:1;min-width:0;text-align:left">
-            <div id="diag-hero-title" style="font-size:18px;font-weight:700;color:#fff;margin-bottom:4px">診斷您的網路連線</div>
-            <div id="diag-hero-sub" style="font-size:13px;color:rgba(255,255,255,.88);line-height:1.5">從您的裝置開始，依序檢查各項連線</div>
-          </div>
-        </div>
-        <div id="diag-hero-btn" style="width:100%;height:48px;background:#fff;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;cursor:pointer;color:var(--ac);box-shadow:0 4px 14px rgba(0,0,0,.12)">開始</div>
+
+  <!-- 診斷 list -->
+  <div class="page on" id="pg-list">
+    <div class="navbar"><div class="bk"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A8FE0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div><div class="ttl">診斷</div></div>
+    <div class="listrow" onclick="openDiag('list',false)"><span>網路診斷</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B5BBC1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+    <div class="listrow" onclick="gotoPage('pg-traffic')"><span>網路流量統計</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B5BBC1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+  </div>
+
+  <!-- 網路流量頁: home-style entry page that hosts the 異常 bar -->
+  <div class="page" id="pg-traffic">
+    <div class="hhead">
+      <div class="g"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M45 24.5c0-1.6-.1-2.8-.4-4.1H24v7.7h12c-.2 1.9-1.6 4.8-4.6 6.7l7 5.4c4.2-3.9 6.6-9.6 6.6-15.7z"/><path fill="#34A853" d="M24 46c6 0 11-2 14.7-5.4l-7-5.4c-1.9 1.3-4.4 2.2-7.7 2.2-5.9 0-10.9-3.9-12.7-9.3l-7.2 5.6C7.7 40.9 15.2 46 24 46z"/><path fill="#FBBC05" d="M11.3 28.1c-.5-1.3-.7-2.7-.7-4.1s.3-2.8.7-4.1l-7.2-5.6C2.7 17.1 2 20.4 2 24s.7 6.9 2.100 9.700z"/><path fill="#EA4335" d="M24 10.600c4.100 0 6.900 1.800 8.500 3.300l6.200-6C35 4.400 30 2 24 2 15.200 2 7.700 7.100 4.100 14.300l7.200 5.600c1.800-5.400 6.800-9.300 12.700-9.300z"/></svg></div>
+      <div class="ht">Home</div>
+      <div style="display:flex;align-items:center;gap:14px;color:#4DA3FF">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.500h.01" stroke-width="2.200"/></svg>
+        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.700 21a2 2 0 01-3.400 0"/></svg>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg>
       </div>
     </div>
+    <div class="hcard">
+      <div class="th"><div style="width:30px;height:34px;margin:0 auto 6px;border-radius:5px;background:linear-gradient(90deg,#E6E7E9,#fff 50%,#E6E7E9)"></div>ZenWiFi XT9</div>
+      <div class="info">LAN IP <span style="color:#2B6CF0">»</span><b>192.168.50.1</b>Network Name<b>timmmxt9</b></div>
+      <div class="sp"></div>
+      <svg width="62" height="46" viewBox="0 0 62 46" fill="none" stroke="#9AA9B4" stroke-width="3.600" stroke-linecap="round"><path d="M5 40a26 26 0 1152 0"/><path d="M31 38l12-14" stroke-width="4"/><circle cx="31" cy="38" r="3" fill="#9AA9B4"/></svg>
+    </div>
+    <div class="welcome">Welcome</div>
+    <div class="model">ZenWiFi XT9</div>
+    <div class="rt"></div>
+    <div class="dots"><i></i><i></i><i></i><i></i></div>
+    <div class="qa" style="flex:1;align-items:flex-end">
+      <svg width="54" height="54" viewBox="0 0 54 54" fill="none"><circle cx="27" cy="27" r="25" fill="#2B7DE9"/><g stroke="#fff" stroke-width="1.800"><circle cx="27" cy="27" r="14"/><ellipse cx="27" cy="27" rx="6" ry="14"/><path d="M13 27h28M15.500 20h23M15.500 34h23"/></g></svg>
+      <svg width="54" height="54" viewBox="0 0 54 54" fill="none"><circle cx="27" cy="27" r="24" fill="#fff" stroke="#6FA8EE" stroke-width="3"/><path d="M15 31l12-10 12 10v8H15z" fill="#6FA8EE"/><path d="M19 22a12 12 0 0116 0M22 18a8 8 0 0110 0" stroke="#6FA8EE" stroke-width="2.400" stroke-linecap="round"/></svg>
+      <svg width="54" height="54" viewBox="0 0 54 54" fill="none"><circle cx="27" cy="27" r="24" fill="#fff" stroke="#9CC4F5" stroke-width="3"/><path d="M15 24a17 17 0 0124 0M19 29a11 11 0 0116 0M23 34a5 5 0 018 0" stroke="#9CC4F5" stroke-width="2.800" stroke-linecap="round"/><circle cx="27" cy="38.500" r="1.800" fill="#9CC4F5"/></svg>
+    </div>
+    <div class="abar">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.800" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16.500h.01" stroke-width="2.200"/></svg>
+      <div class="tx">網路連線可能異常</div>
+      <div class="bt" onclick="openDiag('traffic',true)">詳細診斷</div>
+    </div>
+    <div class="tabbar">
+      <div class="t on"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.900" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><path d="M10 21v-7h4v7"/></svg><span>Home</span></div>
+      <div class="t"><div class="bd">2</div><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="12" height="15" rx="2"/><path d="M2 21h10M8 15.500h.01"/></svg><span>Devices</span></div>
+      <div class="t"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4.500 12.300c.7.600 1 1.200 1 1.700h7c0-.5.300-1.100 1-1.700A7 7 0 0012 2z"/></svg><span>Insight</span></div>
+      <div class="t"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20a6 6 0 0112 0M10 20a6 6 0 0112 0"/></svg><span>Family</span></div>
+      <div class="t go" onclick="gotoPage('pg-list')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.400 15a1.700 1.700 0 00.300 1.800l.1.100a2 2 0 11-2.800 2.800l-.1-.1a1.700 1.700 0 00-1.800-.3 1.700 1.700 0 00-1 1.500V21a2 2 0 11-4 0v-.1a1.700 1.700 0 00-1-1.500 1.700 1.700 0 00-1.800.3l-.1.100a2 2 0 11-2.800-2.800l.1-.1a1.700 1.700 0 00.3-1.800 1.700 1.700 0 00-1.500-1H3a2 2 0 110-4h.1a1.700 1.700 0 001.500-1 1.700 1.700 0 00-.3-1.800l-.1-.1a2 2 0 112.800-2.800l.1.100a1.700 1.700 0 001.800.3h0a1.700 1.700 0 001-1.500V3a2 2 0 114 0v.1a1.700 1.700 0 001 1.500h0a1.700 1.700 0 001.800-.3l.1-.1a2 2 0 112.800 2.800l-.1.100a1.700 1.700 0 00-.3 1.800v0a1.700 1.700 0 001.500 1H21a2 2 0 110 4h-.1a1.700 1.700 0 00-1.500 1z"/></svg><span>Settings</span></div>
+    </div>
+  </div>
 
-    <!-- scrollable body -->
-    <div style="flex:1;min-height:0;overflow-y:auto;background:var(--bg)">
+  <!-- Network Diagnostic -->
+  <div class="page" id="pg-diag">
+    <div id="hero">
+      <div class="hnav"><div class="bk" onclick="backFromDiag()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div><div class="t">Network Diagnostic</div></div>
+      <div class="hrow"><div id="hicon"></div><div><div id="htitle"></div><div id="hsub"></div></div></div>
+      <div id="hbtn" onclick="runDiag()"></div>
+    </div>
+    <div class="sec" onclick="show('ov-demo')">連線檢查</div>
+    <div id="steps"></div>
 
-      <!-- Network Diagnostic: connection-chain steps -->
-      <div id="diag-main">
-        <div style="padding:20px 20px 32px">
-          <div onclick="show('ov-diag-demo')" style="font-size:13px;font-weight:600;color:var(--t3);margin-bottom:12px;cursor:pointer">連線檢查</div>
-          <div id="diag-steps"></div>
-        </div>
+    <!-- hidden demo picker: tap 連線檢查 -->
+    <div class="ov" id="ov-demo" onclick="if(event.target===this)hide('ov-demo')">
+      <div class="sheet">
+        <div class="hdl"></div>
+        <div style="font-size:18px;font-weight:600;text-align:center;margin-bottom:4px">切換診斷情境</div>
+        <div style="font-size:13px;color:var(--t3);text-align:center;margin-bottom:14px">Demo 用，選擇要展示的畫面</div>
+        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('success')"><div class="sb" style="background:#65C4B9"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span style="font-weight:600">都正常</span></div>
+        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('fail')"><div class="sb" style="background:#D95B47"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></div><span style="font-weight:600">有錯誤 ✕</span></div>
+        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('mixed')"><div class="sb" style="background:linear-gradient(135deg,#FF9643 50%,#D95B47 50%)"></div><span style="font-weight:600">錯誤＋不穩</span></div>
+        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start;border-bottom:none" onclick="hide('ov-demo');demoJump('warn')"><div class="sb" style="background:#FF9643"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="12" y1="6" x2="12" y2="13"/><line x1="12" y1="17.6" x2="12.01" y2="17.6" stroke-width="4"/></svg></div><span style="font-weight:600">不穩 ！</span></div>
       </div>
     </div>
   </div>
 
-  <!-- Demo picker: hidden trigger, tap "連線檢查" label to open -->
-  <div class="ov" id="ov-diag-demo" onclick="if(event.target===this)hide('ov-diag-demo')">
-    <div class="sheet">
-      <div class="hdl"></div>
-      <div style="font-size:18px;font-weight:600;color:var(--tx);text-align:center;margin-bottom:4px">切換診斷情境</div>
-      <div style="font-size:13px;color:var(--t3);text-align:center;margin-bottom:18px">Demo 用，選擇要展示的畫面</div>
-      <div onclick="hide('ov-diag-demo');netDiagDemoJump('success')" style="display:flex;align-items:center;gap:12px;padding:14px 4px;border-bottom:1px solid var(--bd);cursor:pointer">
-        <div style="width:34px;height:34px;border-radius:50%;background:#3DBBAF;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div style="font-size:16px;font-weight:600;color:var(--tx)">都正常</div>
-      </div>
-      <div onclick="hide('ov-diag-demo');netDiagDemoJump('fail')" style="display:flex;align-items:center;gap:12px;padding:14px 4px;border-bottom:1px solid var(--bd);cursor:pointer">
-        <div style="width:34px;height:34px;border-radius:50%;background:#D95B47;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></div>
-        <div style="font-size:16px;font-weight:600;color:var(--tx)">有錯誤 ✕</div>
-      </div>
-      <div onclick="hide('ov-diag-demo');netDiagDemoJump('mixed')" style="display:flex;align-items:center;gap:12px;padding:14px 4px;border-bottom:1px solid var(--bd);cursor:pointer">
-        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#FF9643 50%,#D95B47 50%);display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
-        <div style="font-size:16px;font-weight:600;color:var(--tx)">錯誤＋不穩</div>
-      </div>
-      <div onclick="hide('ov-diag-demo');netDiagDemoJump('warn')" style="display:flex;align-items:center;gap:12px;padding:14px 4px;cursor:pointer">
-        <div style="width:34px;height:34px;border-radius:50%;background:#FF9643;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><line x1="12" y1="7" x2="12" y2="13"/><line x1="12" y1="16.8" x2="12.01" y2="16.8" stroke-width="3.6"/></svg></div>
-        <div style="font-size:16px;font-weight:600;color:var(--tx)">不穩 ！</div>
-      </div>
-    </div>
-  </div>
 </div>
+
 <script>
 function g(id){return document.getElementById(id)}
-function show(id){var e=g(id);if(e)e.classList.add('on')}
-function hide(id){var e=g(id);if(e)e.classList.remove('on')}
-function bind(id,fn){var e=g(id);if(e)e.addEventListener('click',fn)}
-(function(){
-  // ── Network Diagnostic: connection-chain flow (裝置 → 路由器 → 數據機 → 網際網路) ──
-  var NET_DIAG_STEPS=[
-    {key:'device',   label:'您的裝置'},
-    {key:'router',   label:'華碩路由器'},
-    {key:'modem',    label:'數據機'},
-    {key:'internet', label:'網際網路'}
-  ];
-  // Copy per NETWORK_DIAGNOSTIC_TYPE (failure categories reference table + Figma)
-  var NET_DIAG_FAILS={
-    device_wifi:{step:'device',  heroTitle:'無法連上您的裝置',   title:'無線網路已關閉',                  desc:'請開啟您裝置的無線網路'},
-    device_net: {step:'device',  heroTitle:'無法連上您的裝置',   title:'請啟用您行動裝置的無線網路',        desc:'請確認您的華碩路由器是開啟的狀態、且您的裝置連線到正確的無線網路'},
-    router:     {step:'router',  heroTitle:'無法連上華碩路由器', title:'華碩路由器似乎是離線狀態',          desc:'請確認您的華碩路由器是開啟的狀態、且您的裝置連線到正確的無線網路'},
-    modem:      {step:'modem',   heroTitle:'數據機連線異常',     title:'請檢查數據機電源與線路',            desc:'請確認數據機已開機，且與華碩路由器之間的網路線已正確連接'},
-    internet:   {step:'internet',heroTitle:'無法連上網際網路',   title:'您的網路服務供應商似乎出了點問題',   desc:'請與您的網路服務供應商聯繫，以修正網路連線問題'}
-  };
-  var NET_DIAG_WARN_DESC='此段連線不穩定，可能影響上網體驗';
-  var NET_DIAG_GRADIENT={
-    idle:   'linear-gradient(180deg,#56B7FF 0%,#7CC6FF 38%,#C7E7FF 72%,#F4F6FB 100%)',
-    running:'linear-gradient(180deg,#56B7FF 0%,#7CC6FF 38%,#C7E7FF 72%,#F4F6FB 100%)',
-    success:'linear-gradient(180deg,#3DBBAF 0%,#6BCCC4 38%,#C3EAE6 72%,#F4F6FB 100%)',
-    warn:   'linear-gradient(180deg,#FAAD68 0%,#FBC08C 38%,#FDE4C9 72%,#F4F6FB 100%)',
-    fail:   'linear-gradient(180deg,#E37B69 0%,#EB9C8E 38%,#F6D2CB 72%,#F4F6FB 100%)'
-  };
-  var NET_DIAG_OK_COLOR='#3DBBAF';
-  var NET_DIAG_WARN_COLOR='#FF9643';
-  var NET_DIAG_FAIL_COLOR='#D95B47';
-  var _netDiagRun=0;
-  var _netDiagBusy=false;
-  var _netDiagState='idle';
-  var _netDiagStatuses=['pending','pending','pending','pending'];
-  var NET_DIAG_FAIL_KEY_BY_STEP={device:'device_wifi',router:'router',modem:'modem',internet:'internet'};
+function show(id){g(id).classList.add('on')}
+function hide(id){g(id).classList.remove('on')}
+function gotoPage(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on')});show(id)}
 
-  function netDiagIcon(kind){
-    if(kind==='ok') return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-    if(kind==='warn') return '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"><line x1="12" y1="6" x2="12" y2="14"/><line x1="12" y1="17.6" x2="12.01" y2="17.6" stroke-width="4.4"/></svg>';
-    if(kind==='fail') return '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
-    return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>';
-  }
+var STEPS=[
+  {key:'device',   label:'您的裝置',    icon:'<rect x="2.5" y="5" width="13" height="9" rx="1.5"/><path d="M1 17h16"/><rect x="15.5" y="8" width="6" height="10" rx="1.4"/>'},
+  {key:'router',   label:'華碩路由器',  icon:'<rect x="3" y="13" width="18" height="6" rx="2"/><path d="M7 16h.01M11 16h.01"/><path d="M8 13V9M16 13V9"/><path d="M9.5 6.5a3.5 3.5 0 015 0"/>'},
+  {key:'upstream', label:'上游網路設備',icon:'<rect x="9" y="7" width="6" height="12" rx="1.5"/><path d="M12 16h.01"/><path d="M6.5 9.5a4 4 0 000 5M17.5 9.5a4 4 0 010 5M4 7.5a7.5 7.5 0 000 9M20 7.5a7.5 7.5 0 010 9"/>'},
+  {key:'internet', label:'網際網路',    icon:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>'},
+  {key:'dns',      label:'DNS 檢測',    icon:'<rect x="2" y="7" width="20" height="10" rx="2.5"/><text x="12" y="14.6" font-size="6.2" font-weight="700" text-anchor="middle" fill="#5F6368" stroke="none" font-family="Arial">DNS</text>'}
+];
+/* copy per ASUS-WL/Documentations#2538 (one fixed failure case per layer for the demo) */
+var FAIL_COPY={
+  device:  {title:'Wi‑Fi 已關閉。',                  lines:['請啟用您行動裝置的 Wi‑Fi。']},
+  router:  {title:'華碩路由器似乎是離線狀態。',        lines:['請確認華碩路由器是電源開啟的狀態。','請檢查是否訊號太遠或干擾。','請重開路由器後再試一次。']},
+  upstream:{title:'數據機似乎是離線狀態。',            lines:['請確認您的數據機是開啟的狀態。','請確認所有的線路都有正確連接。','請嘗試重啟數據機。','請與您的網路服務供應商聯繫，以修正網路連線問題。']},
+  internet:{title:'您的網路服務供應商似乎出了點問題。',  lines:['請與您的網路服務供應商聯繫，以修正網路連線問題。']},
+  dns:     {title:'部分網路名稱無法正常解析。',        lines:['請嘗試將手機的 DNS 改回自動取得。','請檢查華碩路由器的 DNS 與過濾防護設定是否正常，再重新連線 Wi-Fi。']}
+};
+var WARN_DESC='偵測到此段連線偶有中斷，可能影響上網穩定性。';
+var COLOR={ok:'#65C4B9',warn:'#FF9643',fail:'#D95B47'};
+var THEME={ /* c: top / body / light fade colours, btn: button text colour */
+  idle:   {c:['#57B7FF','#5EC5FF','#CDF1FF'],btn:'#283745'},
+  running:{c:['#57B7FF','#5EC5FF','#CDF1FF'],btn:'#283745'},
+  success:{c:['#40B9AF','#38AEA1','#D1F2EC'],btn:'#1E9D90'},
+  warn:   {c:['#F6AB63','#EE9F55','#FAECDA'],btn:'#BC6F10'},
+  fail:   {c:['#E47867','#E26B5A','#FCE1DB'],btn:'#D95B47'}
+};
+var ICON={
+  search:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg>',
+  ok:'<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  warn:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="14"/><line x1="12" y1="18.6" x2="12.01" y2="18.6" stroke-width="4.2"/></svg>',
+  fail:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>'
+};
+var SCENARIOS=[
+  ['ok','ok','ok','ok','ok'],
+  ['ok','fail','pending','pending','pending'],
+  ['ok','warn','fail','pending','pending'],
+  ['ok','warn','ok','warn','ok']   /* 只有不穩，沒有異常：⚠ 不會中斷，一路檢查到最後 */
+];
 
-  function renderNetDiagSteps(statuses, failInfo){
-    var rows=NET_DIAG_STEPS.map(function(step,i){
-      var st=statuses[i], circle, statusHtml;
-      var pendingCircle='<div style="position:relative;z-index:1;width:32px;height:32px;border-radius:50%;background:#DFE1E6;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:var(--t2)">'+(i+1)+'</div>';
-      if(st==='ok'){
-        circle='<div style="position:relative;z-index:1;width:32px;height:32px;border-radius:50%;background:'+NET_DIAG_OK_COLOR+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>';
-        statusHtml='<span style="font-size:13px;font-weight:500;color:'+NET_DIAG_OK_COLOR+'">正常</span>';
-      } else if(st==='warn'){
-        circle='<div style="position:relative;z-index:1;width:32px;height:32px;border-radius:50%;background:'+NET_DIAG_WARN_COLOR+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><line x1="12" y1="7" x2="12" y2="13"/><line x1="12" y1="16.8" x2="12.01" y2="16.8" stroke-width="3.6"/></svg></div>';
-        statusHtml='<span style="font-size:13px;font-weight:500;color:'+NET_DIAG_WARN_COLOR+'">連線不穩</span>';
-      } else if(st==='fail'){
-        circle='<div style="position:relative;z-index:1;width:32px;height:32px;border-radius:50%;background:'+NET_DIAG_FAIL_COLOR+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><line x1="7" y1="7" x2="17" y2="17"/><line x1="17" y1="7" x2="7" y2="17"/></svg></div>';
-        statusHtml='<span style="font-size:13px;font-weight:500;color:'+NET_DIAG_FAIL_COLOR+'">連線異常</span>';
-      } else if(st==='checking'){
-        circle=pendingCircle;
-        statusHtml='<div style="width:16px;height:16px;border-radius:50%;border:2px solid var(--bd2);border-top-color:var(--t3);animation:spin .7s linear infinite"></div>';
-      } else {
-        circle=pendingCircle;
-        statusHtml='<span style="font-size:13px;font-weight:500;color:var(--t3)">未檢查</span>';
-      }
-      var clickable=_netDiagState==='fail'||_netDiagState==='warn';
-      var row='<div'+(clickable?' onclick="cycleNetDiagStep('+i+')"':'')+' style="position:relative;z-index:1;display:flex;align-items:center;gap:14px;padding:17px 16px'+(clickable?';cursor:pointer':'')+'">'
-        +circle
-        +'<div style="flex:1;font-size:16px;font-weight:600;color:var(--tx)">'+step.label+'</div>'
-        +statusHtml
+var statuses=['pending','pending','pending','pending','pending'];
+var state='idle', busy=false, runCount=0, origin='list';
+
+function statusIcon(st){
+  if(st==='ok')   return '<div class="sb" style="background:'+COLOR.ok+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>';
+  if(st==='warn') return '<div class="sb" style="background:'+COLOR.warn+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="13.5"/><line x1="12" y1="18.4" x2="12.01" y2="18.4" stroke-width="4"/></svg></div>';
+  if(st==='fail') return '<div class="sb" style="background:'+COLOR.fail+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></div>';
+  if(st==='checking') return '<div class="spin"></div>';
+  return '<span class="dash">--</span>';
+}
+
+function renderSteps(){
+  var clickable=(state==='warn'||state==='fail');
+  g('steps').innerHTML=STEPS.map(function(s,i){
+    var st=statuses[i], extra='';
+    if(st==='warn') extra='<div class="desc">'+WARN_DESC+'</div>';
+    if(st==='fail'){var fc=FAIL_COPY[s.key];extra='<div class="box"><b>'+fc.title+'</b>'+fc.lines.map(function(l){return '<span>'+(fc.lines.length>1?'• ':'')+l+'</span>';}).join('')+'</div>';}
+    return '<div class="row"'+(clickable?' onclick="cycleStep('+i+')" style="cursor:pointer"':'')+'>'
+      +(i<STEPS.length-1?'<div class="line"></div>':'')
+      +'<div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5F6368" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+s.icon+'</svg></div>'
+      +'<div class="main"><div class="top"><span class="lbl">'+s.label+'</span>'+statusIcon(st)+'</div>'+extra+'</div>'
       +'</div>';
-      if(st==='fail' && failInfo){
-        row+='<div style="position:relative;z-index:1;margin:0 16px 14px 62px;background:#FDF1EF;border:1.5px solid '+NET_DIAG_FAIL_COLOR+';border-radius:var(--r2);padding:12px 14px">'
-          +'<div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px">'+failInfo.title+'</div>'
-          +'<div style="font-size:12.5px;color:var(--t2);line-height:1.6">'+failInfo.desc+'</div>'
-        +'</div>';
-      } else if(st==='warn'){
-        row+='<div style="position:relative;z-index:1;margin:2px 16px 14px 62px;font-size:12.5px;color:var(--t3);line-height:1.6">'+NET_DIAG_WARN_DESC+'</div>';
-      }
-      return row;
-    }).join('');
-    var html='<div style="position:relative">'
-      +'<div style="position:absolute;left:32px;top:33px;bottom:33px;width:2px;background:var(--bd);z-index:0"></div>'
-      +rows
-    +'</div>';
-    var el=g('diag-steps'); if(el) el.innerHTML=html;
+  }).join('');
+}
+
+function renderHero(st,o){
+  state=st;
+  var t=THEME[st];
+  g('hero').style.background='radial-gradient(ellipse 125% 100% at 50% 0%,'+t.c[0]+' 0%,'+t.c[1]+' 42%,'+t.c[2]+' 78%,rgba(255,255,255,0) 100%)';
+  g('hicon').innerHTML=st==='success'?ICON.ok:st==='warn'?ICON.warn:st==='fail'?ICON.fail:ICON.search;
+  g('htitle').textContent=o.title;
+  g('hsub').textContent=o.sub;
+  var b=g('hbtn');
+  b.textContent=o.btn;
+  b.style.color=t.btn;
+  b.style.opacity=o.disabled?'.55':'1';
+  b.style.pointerEvents=o.disabled?'none':'';
+}
+
+/* hero state follows the worst status present: fail > warn > success */
+function applyStatuses(){
+  if(statuses.indexOf('fail')>=0)
+    renderHero('fail',{title:'網路連線異常',sub:'請依下方步驟排除問題後，再重新診斷',btn:'重新診斷'});
+  else if(statuses.indexOf('warn')>=0)
+    renderHero('warn',{title:'網路連線不穩定',sub:'目前仍可連線，但部分檢測顯示可能影響上網體驗',btn:'重新診斷'});
+  else
+    renderHero('success',{title:'網路連線正常',sub:'網路連線正常運作中。',btn:'重新診斷'});
+  renderSteps();
+}
+
+function setIdle(){
+  busy=false;
+  statuses=['pending','pending','pending','pending','pending'];
+  renderHero('idle',{title:'診斷您的網路連線',sub:'從您的裝置開始，依序檢查各項連線',btn:'開始'});
+  renderSteps();
+}
+
+/* Flow per issue #2538: first a quick Internet ping+DNS check. Healthy → every row ticks green at once
+   ("網路連線正常運作中"). Otherwise layers are shown one by one (pings run together for 3s behind the scenes):
+   all ok → ok (continue), partial fail → warn (continue + hint), all fail → fail (stop). */
+function runDiag(scn){
+  if(busy) return;
+  busy=true;
+  var plan=(typeof scn==='number')?SCENARIOS[scn]:SCENARIOS[runCount%SCENARIOS.length];
+  if(typeof scn!=='number') runCount++;
+  statuses=['pending','pending','pending','pending','pending'];
+  renderHero('running',{title:'診斷您的網路連線',sub:'診斷中，請稍候...',btn:'診斷中...',disabled:true});
+  renderSteps();
+  var healthy=plan.every(function(x){return x==='ok';});
+  var i=0;
+  if(healthy){
+    /* quick check passed: fast feedback, tick every row */
+    statuses[0]='checking';renderSteps();
+    setTimeout(function tick(){
+      statuses[i]='ok';i++;
+      if(i>=STEPS.length){busy=false;applyStatuses();return;}
+      statuses[i]='checking';renderSteps();
+      setTimeout(tick,380);
+    },900);
+    return;
   }
+  (function next(){
+    if(i>=STEPS.length||plan[i]==='pending'){busy=false;applyStatuses();return;}
+    statuses[i]='checking';renderSteps();
+    setTimeout(function(){
+      statuses[i]=plan[i];
+      if(plan[i]==='fail'){busy=false;applyStatuses();return;}
+      renderSteps();i++;next();
+    },(i===0?900:0)+180+Math.random()*1400);
+  })();
+}
 
-  function renderNetDiagHero(state, opts){
-    opts=opts||{};
-    _netDiagState=state;
-    var hero=g('diag-hero'), icon=g('diag-hero-icon'), title=g('diag-hero-title'), sub=g('diag-hero-sub'), btn=g('diag-hero-btn');
-    if(!hero) return;
-    hero.style.background=NET_DIAG_GRADIENT[state];
-    var accent=state==='success'?NET_DIAG_OK_COLOR:state==='warn'?NET_DIAG_WARN_COLOR:state==='fail'?NET_DIAG_FAIL_COLOR:'var(--ac)';
-    if(icon) icon.innerHTML=state==='success'?netDiagIcon('ok'):state==='warn'?netDiagIcon('warn'):state==='fail'?netDiagIcon('fail'):netDiagIcon('search');
-    if(title) title.textContent=opts.title||'';
-    if(sub) sub.innerHTML=opts.sub||'';
-    if(btn){
-      btn.textContent=opts.btnText||'';
-      btn.style.color=accent;
-      btn.style.opacity=opts.disabled?'.6':'1';
-      btn.style.pointerEvents=opts.disabled?'none':'';
-    }
-  }
+/* demo: tap a row (only in warn/fail) to cycle that step ok→warn→fail→ok */
+function normalize(){
+  var f=statuses.indexOf('fail');
+  statuses=statuses.map(function(s,i){
+    if(f>=0&&i>f) return 'pending';
+    return s==='pending'?'ok':s;
+  });
+}
+function cycleStep(i){
+  if(busy) return;
+  var order=['ok','warn','fail'];
+  var nx=order[(order.indexOf(statuses[i])+1)%3];
+  if(nx==='fail') statuses=statuses.map(function(s,k){return (k!==i&&s==='fail')?'ok':s;});
+  statuses[i]=nx;
+  normalize();
+  applyStatuses();
+}
+function demoJump(kind){
+  if(busy) return;
+  statuses=kind==='success'?['ok','ok','ok','ok','ok']
+    :kind==='fail'?['ok','fail','pending','pending','pending']
+    :kind==='mixed'?['ok','warn','fail','pending','pending']
+    :['ok','warn','ok','ok','ok'];
+  applyStatuses();
+}
 
-  function renderNetDiagIdle(){
-    _netDiagBusy=false;
-    _netDiagStatuses=['pending','pending','pending','pending'];
-    renderNetDiagHero('idle',{title:'診斷您的網路連線',sub:'從您的裝置開始，依序檢查各項連線',btnText:'開始'});
-    renderNetDiagSteps(_netDiagStatuses);
-  }
-
-  // Renders whatever _netDiagStatuses currently holds: fail wins (shows that step's
-  // callout), otherwise any warn(s) show the unstable hero, otherwise success.
-  function renderNetDiagFromStatuses(){
-    var failIdx=_netDiagStatuses.indexOf('fail');
-    var failInfo=failIdx>=0?NET_DIAG_FAILS[NET_DIAG_FAIL_KEY_BY_STEP[NET_DIAG_STEPS[failIdx].key]]:null;
-    if(failInfo){
-      renderNetDiagHero('fail',{title:failInfo.heroTitle,sub:'請依下方步驟排除，再重新診斷',btnText:'重新診斷'});
-      renderNetDiagSteps(_netDiagStatuses, failInfo);
-      return;
-    }
-    var warnCount=_netDiagStatuses.filter(function(s){return s==='warn';}).length;
-    if(warnCount===0){
-      renderNetDiagHero('success',{title:'網路連線正常',sub:'網路連線正常運作中，好好享受網際網路吧。',btnText:'重新診斷'});
-      renderNetDiagSteps(_netDiagStatuses);
-      return;
-    }
-    var warnLabel=warnCount===1
-      ? NET_DIAG_STEPS[_netDiagStatuses.indexOf('warn')].label+'連線不穩'
-      : '部分網路連線不穩定';
-    renderNetDiagHero('warn',{title:warnLabel,sub:'部分連線不穩定，建議稍後重新診斷',btnText:'重新診斷'});
-    renderNetDiagSteps(_netDiagStatuses);
-  }
-
-  // Demo helper: click any of the 4 steps to cycle its status 正常→連線不穩→連線異常→
-  // 正常, mixing and matching freely (only one step can be 連線異常 at a time so the
-  // callout copy stays unambiguous; 連線不穩 can apply to several steps at once).
-  window.cycleNetDiagStep=function(index){
-    if(_netDiagBusy) return;
-    var order=['ok','warn','fail'];
-    var next=order[(order.indexOf(_netDiagStatuses[index])+1)%3];
-    if(next==='fail'){
-      _netDiagStatuses=_netDiagStatuses.map(function(s,i){return (i!==index && s==='fail')?'ok':s;});
-    }
-    _netDiagStatuses[index]=next;
-    renderNetDiagFromStatuses();
-  };
-
-  // Demo picker (hidden trigger on the 連線檢查 label): jump straight to one of the
-  // 4 canned scenarios without replaying the check animation.
-  window.netDiagDemoJump=function(kind){
-    if(_netDiagBusy) return;
-    if(kind==='success') _netDiagStatuses=['ok','ok','ok','ok'];
-    else if(kind==='fail') _netDiagStatuses=['ok','fail','pending','pending'];
-    else if(kind==='mixed') _netDiagStatuses=['ok','warn','fail','pending'];
-    else _netDiagStatuses=['ok','warn','ok','ok'];
-    renderNetDiagFromStatuses();
-  };
-
-  // Each step is simulated as 3 ping attempts: 3/3 ok → 正常 (continue), 1-2/3 ok →
-  // 連線不穩 (warn, continue), 0/3 ok → 連線異常 (fail, stop). Demo cycles through 3
-  // canned outcomes on repeated 開始/重新診斷 presses: success, a hard failure (router),
-  // and a mixed run (router unstable, then modem fails and stops the chain).
-  var NET_DIAG_DEMO_SCENARIOS=[
-    {outcomes:['ok','ok','ok','ok']},
-    {outcomes:['ok','fail','pending','pending']},
-    {outcomes:['ok','warn','fail','pending']}
-  ];
-
-  function runNetDiag(){
-    if(_netDiagBusy) return;
-    _netDiagBusy=true;
-    _netDiagRun++;
-    var scenario=NET_DIAG_DEMO_SCENARIOS[(_netDiagRun-1)%NET_DIAG_DEMO_SCENARIOS.length];
-    var statuses=_netDiagStatuses=['pending','pending','pending','pending'];
-    renderNetDiagHero('running',{title:'診斷您的網路連線',sub:'診斷中，請稍候…',btnText:'診斷中…',disabled:true});
-    renderNetDiagSteps(statuses);
-
-    var i=0;
-    function next(){
-      if(i>=NET_DIAG_STEPS.length || scenario.outcomes[i]==='pending'){
-        _netDiagBusy=false;
-        renderNetDiagFromStatuses();
-        return;
-      }
-      var outcome=scenario.outcomes[i];
-      // Random per-step check time: usually quick, occasionally noticeably longer.
-      var checkTime=180+Math.random()*1400;
-      statuses[i]='checking';
-      renderNetDiagSteps(statuses);
-      setTimeout(function(){
-        statuses[i]=outcome;
-        if(outcome==='fail'){
-          _netDiagBusy=false;
-          renderNetDiagFromStatuses();
-          return;
-        }
-        renderNetDiagSteps(statuses);
-        i++; next();
-      },checkTime);
-    }
-    next();
-  }
-  renderNetDiagIdle();
-  bind('diag-back',function(){renderNetDiagIdle();});
-  bind('diag-hero-btn',function(){runNetDiag();});
-})();
+/* navigation */
+function openDiag(from,autorun){
+  origin=from;
+  setIdle();
+  gotoPage('pg-diag');
+  if(autorun) runDiag(1);   /* 詳細診斷 from the abnormal bar → straight into 診斷中 */
+}
+function backFromDiag(){
+  setIdle();
+  gotoPage(origin==='traffic'?'pg-traffic':'pg-list');
+}
+setIdle();
 </script>
 </body>
 </html>
