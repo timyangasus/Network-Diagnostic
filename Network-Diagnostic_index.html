@@ -262,45 +262,37 @@ function applyStatuses(){
 }
 
 function setIdle(){
-  busy=false;
+  busy=false;runToken++;
   statuses=['pending','pending','pending','pending','pending'];
   renderHero('idle',{title:'診斷您的網路連線',sub:'從您的裝置開始，依序檢查各項連線',btn:'開始'});
   renderSteps();
 }
 
-/* Flow per issue #2538: first a quick Internet ping+DNS check. Healthy → every row ticks green at once
-   ("網路連線正常運作中"). Otherwise layers are shown one by one (pings run together for 3s behind the scenes):
-   all ok → ok (continue), partial fail → warn (continue + hint), all fail → fail (stop). */
+/* Timing per issue #2549 (顯示順序不代表實際執行順序):
+   0–4s   Client spins; background runs the Internet quick check + every layer's 3s ping together
+   4s     Client result, Router spins
+   then   every 1s: reveal the next layer's result and spin the following one (…Internet → DNS)
+   last   DNS spins 1s, then its result + the page-level state.
+   A fully failed layer (❌) stops the chain: the page-level state shows as soon as that row is revealed. */
+var PHASE1_MS=4000, REVEAL_MS=1000, runToken=0;
 function runDiag(scn){
   if(busy) return;
   busy=true;
+  var token=++runToken;
   var plan=(typeof scn==='number')?SCENARIOS[scn]:SCENARIOS[runCount%SCENARIOS.length];
   if(typeof scn!=='number') runCount++;
   statuses=['pending','pending','pending','pending','pending'];
   renderHero('running',{title:'診斷您的網路連線',sub:'診斷中，請稍候...',btn:'診斷中...',disabled:true});
-  renderSteps();
-  var healthy=plan.every(function(x){return x==='ok';});
+  statuses[0]='checking';renderSteps();
   var i=0;
-  if(healthy){
-    /* quick check passed: fast feedback, tick every row */
-    statuses[0]='checking';renderSteps();
-    setTimeout(function tick(){
-      statuses[i]='ok';i++;
-      if(i>=STEPS.length){busy=false;applyStatuses();return;}
-      statuses[i]='checking';renderSteps();
-      setTimeout(tick,380);
-    },900);
-    return;
+  function reveal(){
+    if(token!==runToken) return;           /* left the page / restarted */
+    statuses[i]=plan[i];
+    if(plan[i]==='fail'||i>=STEPS.length-1){busy=false;applyStatuses();return;}
+    i++;statuses[i]='checking';renderSteps();
+    setTimeout(reveal,REVEAL_MS);
   }
-  (function next(){
-    if(i>=STEPS.length||plan[i]==='pending'){busy=false;applyStatuses();return;}
-    statuses[i]='checking';renderSteps();
-    setTimeout(function(){
-      statuses[i]=plan[i];
-      if(plan[i]==='fail'){busy=false;applyStatuses();return;}
-      renderSteps();i++;next();
-    },(i===0?900:0)+180+Math.random()*1400);
-  })();
+  setTimeout(reveal,PHASE1_MS);
 }
 
 /* demo: tap a row (only in warn/fail) to cycle that step ok→warn→fail→ok */
