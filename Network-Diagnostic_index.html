@@ -59,6 +59,7 @@ body{display:flex;align-items:center;justify-content:center}
 .row .box b{display:block;font-size:12px;color:var(--fail);margin-bottom:3px}
 .row .box.warn{background:#FFF6EA;border-color:#FF9643}
 .row .box.warn b{color:#E8821F}
+.row .box .part+.part{margin-top:8px;padding-top:8px;border-top:1px solid rgba(217,91,71,.3)}
 .row .box span{font-size:11px;color:#7C7C7C;line-height:1.5;display:block}
 .sb{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .dash{font-size:14px;color:#8B939A;letter-spacing:2px}
@@ -238,16 +239,22 @@ function statusIcon(st){
   return '<span class="dash">--</span>';
 }
 
-function box(fc,tone){return '<div class="box'+(tone?' '+tone:'')+'"><b>'+fc.title+'</b>'+fc.lines.map(function(l){return '<span>'+(fc.lines.length>1?'• ':'')+l+'</span>';}).join('')+'</div>';}
+function box(parts,tone){
+  return '<div class="box'+(tone?' '+tone:'')+'">'+parts.map(function(fc){
+    return '<div class="part"><b>'+fc.title+'</b>'+fc.lines.map(function(l){return '<span>'+(fc.lines.length>1?'• ':'')+l+'</span>';}).join('')+'</div>';
+  }).join('')+'</div>';
+}
 function renderSteps(){
   var clickable=(state==='warn'||state==='fail');
   g('steps').innerHTML=STEPS.map(function(s,i){
     var st=statuses[i], extra='';
     var pf=(st==='fail'||st==='faildns'), df=(st==='dns'||st==='warndns'||st==='faildns');
     var tone=(pf||df)?'':'warn';             /* any error → every callout in the row is red; ping-unstable alone → yellow */
-    if(st==='warn'||st==='warndns') extra+=box(WARN_COPY,tone);
-    if(pf) extra+=box(PING_FAIL[s.key],tone);
-    if(df) extra+=box(DNS_FAIL[s.key],tone);
+    var parts=[];                            /* one callout per layer; several messages share it, in order Ping then DNS */
+    if(st==='warn'||st==='warndns') parts.push(WARN_COPY);
+    if(pf) parts.push(PING_FAIL[s.key]);
+    if(df) parts.push(DNS_FAIL[s.key]);
+    if(parts.length) extra=box(parts,tone);
     return '<div class="row"'+(clickable?' onclick="cycleStep('+i+')" style="cursor:pointer"':'')+'>'
       +(i<STEPS.length-1?'<div class="line"></div>':'')
       +'<div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5F6368" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+s.icon+'</svg></div>'
