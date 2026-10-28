@@ -161,6 +161,7 @@ body{display:flex;align-items:center;justify-content:center}
         <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('success')"><div class="sb" style="background:#65C4B9"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span style="font-weight:600">都正常</span></div>
         <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('fail')"><div class="sb" style="background:#D95B47"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></div><span style="font-weight:600">有錯誤 ✕</span></div>
         <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('mixed')"><div class="sb" style="background:linear-gradient(135deg,#FF9643 50%,#D95B47 50%)"></div><span style="font-weight:600">錯誤＋不穩</span></div>
+        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('dns')"><div class="sb" style="background:#D95B47"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></div><span style="font-weight:600">DNS 異常</span></div>
         <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start;border-bottom:none" onclick="hide('ov-demo');demoJump('warn')"><div class="sb" style="background:#FF9643"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="12" y1="6" x2="12" y2="13"/><line x1="12" y1="17.6" x2="12.01" y2="17.6" stroke-width="4"/></svg></div><span style="font-weight:600">不穩 ！</span></div>
       </div>
     </div>
@@ -179,15 +180,18 @@ var STEPS=[
   {key:'router',   label:'華碩路由器',  icon:'<rect x="3" y="13" width="18" height="6" rx="2"/><path d="M7 16h.01M11 16h.01"/><path d="M8 13V9M16 13V9"/><path d="M9.5 6.5a3.5 3.5 0 015 0"/>'},
   {key:'upstream', label:'上游網路設備',icon:'<rect x="9" y="7" width="6" height="12" rx="1.5"/><path d="M12 16h.01"/><path d="M6.5 9.5a4 4 0 000 5M17.5 9.5a4 4 0 010 5M4 7.5a7.5 7.5 0 000 9M20 7.5a7.5 7.5 0 010 9"/>'},
   {key:'internet', label:'網際網路',    icon:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>'},
-  {key:'dns',      label:'DNS 網域解析',    icon:'<rect x="2" y="7" width="20" height="10" rx="2.5"/><text x="12" y="14.6" font-size="6.2" font-weight="700" text-anchor="middle" fill="#5F6368" stroke="none" font-family="Arial">DNS</text>'}
 ];
-/* copy per ASUS-WL/Documentations#2538 (one fixed failure case per layer for the demo) */
-var FAIL_COPY={
+/* copy per ASUS-WL/Documentations#2538 — DNS is folded into Router / Gateway / Internet (Client = ping only) */
+var PING_FAIL={
   device:  {title:'Wi‑Fi 已關閉。',                  lines:['請啟用您行動裝置的 Wi‑Fi。']},
   router:  {title:'華碩路由器似乎是離線狀態。',        lines:['請確認華碩路由器是電源開啟的狀態。','請檢查是否訊號太遠或干擾。','請重開路由器後再試一次。']},
-  upstream:{title:'數據機似乎是離線狀態。',            lines:['請確認您的數據機是開啟的狀態。','請確認所有的線路都有正確連接。','請嘗試重啟數據機。','請與您的網路服務供應商聯繫，以修正網路連線問題。']},
-  internet:{title:'您的網路服務供應商似乎出了點問題。',  lines:['請與您的網路服務供應商聯繫，以修正網路連線問題。']},
-  dns:     {title:'部分網路名稱無法正常解析。',        lines:['請嘗試將手機的 DNS 改回自動取得。','請檢查華碩路由器的 DNS 與過濾防護設定是否正常，再重新連線 Wi-Fi。']}
+  upstream:{title:'上游網路設備似乎是離線狀態。',      lines:['請確認您的上游網路設備是開啟的狀態。','請重新插拔線路，並確認所有的線路都有正確連接。','請嘗試重啟上游網路設備。','請與您的網路服務供應商聯繫，以修正網路連線問題。']},
+  internet:{title:'您的網路服務供應商似乎出了點問題。',  lines:['請與您的網路服務供應商聯繫，以修正網路連線問題。']}
+};
+var DNS_FAIL={
+  router:  {title:'路由器無法解析網站名稱。',          lines:['請重新啟動華碩路由器後再試一次。','若問題持續，請檢查路由器的 DNS 設定，或變更其他 DNS 服務。']},
+  upstream:{title:'網路服務供應商的 DNS 服務可能異常。', lines:['請嘗試重啟您的上游網路設備。','您可以嘗試在華碩路由器中改用其他 DNS 服務。','若問題持續，請聯絡您的網路服務供應商。']},
+  internet:{title:'網域名稱解析異常。',               lines:['部分網站暫時無法使用，請稍後再試。若問題持續，請聯絡網路服務供應商。']}
 };
 var WARN_DESC='偵測到此段連線偶有中斷，可能影響上網穩定性。';
 var COLOR={ok:'#65C4B9',warn:'#FF9643',fail:'#D95B47'};
@@ -204,17 +208,22 @@ var ICON={
   warn:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="14"/><line x1="12" y1="18.6" x2="12.01" y2="18.6" stroke-width="4.2"/></svg>',
   fail:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>'
 };
+/* per-layer result: ok | warn(ping partly failed) | fail(ping all failed) | dns(ping ok, DNS failed)
+   | warndns(ping partly failed + DNS failed) | faildns(ping + DNS failed). Anything but ok/warn is ❌ and stops the run. */
 var SCENARIOS=[
-  ['ok','ok','ok','ok','ok'],
-  ['ok','fail','pending','pending','pending'],
-  ['ok','warn','fail','pending','pending'],
-  ['ok','warn','ok','warn','ok']   /* 只有不穩，沒有異常：⚠ 不會中斷，一路檢查到最後 */
+  ['ok','ok','ok','ok'],
+  ['ok','fail','pending','pending'],
+  ['ok','warn','fail','pending'],
+  ['ok','warn','ok','warn'],        /* 只有不穩，沒有異常：⚠ 不中斷，一路檢查到最後 */
+  ['ok','ok','dns','pending']       /* Ping 都成功，但 Gateway 的 DNS 失敗 → ❌ 停止 */
 ];
-
-var statuses=['pending','pending','pending','pending','pending'];
+function sev(st){return (st==='fail'||st==='dns'||st==='warndns'||st==='faildns')?'fail':(st==='ok'||st==='warn'?st:st)}
+function pend(){return STEPS.map(function(){return 'pending';})}
+var statuses=pend();
 var state='idle', busy=false, runCount=0, origin='list';
 
 function statusIcon(st){
+  st=sev(st);
   if(st==='ok')   return '<div class="sb" style="background:'+COLOR.ok+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>';
   if(st==='warn') return '<div class="sb" style="background:'+COLOR.warn+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="13.5"/><line x1="12" y1="18.4" x2="12.01" y2="18.4" stroke-width="4"/></svg></div>';
   if(st==='fail') return '<div class="sb" style="background:'+COLOR.fail+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></div>';
@@ -222,12 +231,15 @@ function statusIcon(st){
   return '<span class="dash">--</span>';
 }
 
+function box(fc){return '<div class="box"><b>'+fc.title+'</b>'+fc.lines.map(function(l){return '<span>'+(fc.lines.length>1?'• ':'')+l+'</span>';}).join('')+'</div>';}
 function renderSteps(){
   var clickable=(state==='warn'||state==='fail');
   g('steps').innerHTML=STEPS.map(function(s,i){
     var st=statuses[i], extra='';
-    if(st==='warn') extra='<div class="desc">'+WARN_DESC+'</div>';
-    if(st==='fail'){var fc=FAIL_COPY[s.key];extra='<div class="box"><b>'+fc.title+'</b>'+fc.lines.map(function(l){return '<span>'+(fc.lines.length>1?'• ':'')+l+'</span>';}).join('')+'</div>';}
+    var pf=(st==='fail'||st==='faildns'), df=(st==='dns'||st==='warndns'||st==='faildns');
+    if(st==='warn'||st==='warndns') extra+='<div class="desc">'+WARN_DESC+'</div>';
+    if(pf) extra+=box(PING_FAIL[s.key]);
+    if(df) extra+=box(DNS_FAIL[s.key]);
     return '<div class="row"'+(clickable?' onclick="cycleStep('+i+')" style="cursor:pointer"':'')+'>'
       +(i<STEPS.length-1?'<div class="line"></div>':'')
       +'<div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5F6368" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+s.icon+'</svg></div>'
@@ -252,9 +264,9 @@ function renderHero(st,o){
 
 /* hero state follows the worst status present: fail > warn > success */
 function applyStatuses(){
-  if(statuses.indexOf('fail')>=0)
+  if(statuses.some(function(x){return sev(x)==='fail';}))
     renderHero('fail',{title:'網路連線異常',sub:'請依下方步驟排除問題後，再重新診斷',btn:'重新診斷'});
-  else if(statuses.indexOf('warn')>=0)
+  else if(statuses.some(function(x){return x==='warn';}))
     renderHero('warn',{title:'網路連線不穩定',sub:'目前仍可連線，但部分檢測顯示可能影響上網體驗',btn:'重新診斷'});
   else
     renderHero('success',{title:'網路連線正常',sub:'網路連線正常運作中，好好享受網際網路吧',btn:'重新診斷'});
@@ -263,7 +275,7 @@ function applyStatuses(){
 
 function setIdle(){
   busy=false;runToken++;
-  statuses=['pending','pending','pending','pending','pending'];
+  statuses=pend();
   renderHero('idle',{title:'診斷您的網路連線',sub:'從您的裝置開始，依序檢查各項連線',btn:'開始'});
   renderSteps();
 }
@@ -271,8 +283,8 @@ function setIdle(){
 /* Timing per issue #2549 (顯示順序不代表實際執行順序):
    0–4s   Client spins; background runs the Internet quick check + every layer's 3s ping together
    4s     Client result, Router spins
-   then   every 1s: reveal the next layer's result and spin the following one (…Internet → DNS)
-   last   DNS spins 1s, then its result + the page-level state.
+   then   every 1s: reveal the next layer's result and spin the following one (Router → Gateway → Internet)
+   last   the Internet result + the page-level state (DNS is now part of each layer's result).
    A fully failed layer (❌) stops the chain: the page-level state shows as soon as that row is revealed. */
 var PHASE1_MS=4000, REVEAL_MS=1000, runToken=0;
 function runDiag(scn){
@@ -281,14 +293,14 @@ function runDiag(scn){
   var token=++runToken;
   var plan=(typeof scn==='number')?SCENARIOS[scn]:SCENARIOS[runCount%SCENARIOS.length];
   if(typeof scn!=='number') runCount++;
-  statuses=['pending','pending','pending','pending','pending'];
+  statuses=pend();
   renderHero('running',{title:'診斷您的網路連線',sub:'診斷中，請稍候...',btn:'診斷中...',disabled:true});
   statuses[0]='checking';renderSteps();
   var i=0;
   function reveal(){
     if(token!==runToken) return;           /* left the page / restarted */
     statuses[i]=plan[i];
-    if(plan[i]==='fail'||i>=STEPS.length-1){busy=false;applyStatuses();return;}
+    if(sev(plan[i])==='fail'||i>=STEPS.length-1){busy=false;applyStatuses();return;}
     i++;statuses[i]='checking';renderSteps();
     setTimeout(reveal,REVEAL_MS);
   }
@@ -297,27 +309,28 @@ function runDiag(scn){
 
 /* demo: tap a row (only in warn/fail) to cycle that step ok→warn→fail→ok */
 function normalize(){
-  var f=statuses.indexOf('fail');
-  statuses=statuses.map(function(s,i){
+  var f=statuses.findIndex(function(x){return sev(x)==='fail';});
+  statuses=statuses.map(function(x,i){
     if(f>=0&&i>f) return 'pending';
-    return s==='pending'?'ok':s;
+    return x==='pending'?'ok':x;
   });
 }
 function cycleStep(i){
   if(busy) return;
   var order=['ok','warn','fail'];
-  var nx=order[(order.indexOf(statuses[i])+1)%3];
-  if(nx==='fail') statuses=statuses.map(function(s,k){return (k!==i&&s==='fail')?'ok':s;});
+  var nx=order[(order.indexOf(sev(statuses[i]))+1)%3];
+  if(nx==='fail') statuses=statuses.map(function(x,k){return (k!==i&&sev(x)==='fail')?'ok':x;});
   statuses[i]=nx;
   normalize();
   applyStatuses();
 }
 function demoJump(kind){
   if(busy) return;
-  statuses=kind==='success'?['ok','ok','ok','ok','ok']
-    :kind==='fail'?['ok','fail','pending','pending','pending']
-    :kind==='mixed'?['ok','warn','fail','pending','pending']
-    :['ok','warn','ok','ok','ok'];
+  statuses=kind==='success'?['ok','ok','ok','ok']
+    :kind==='fail'?['ok','fail','pending','pending']
+    :kind==='mixed'?['ok','warn','fail','pending']
+    :kind==='dns'?['ok','ok','dns','pending']
+    :['ok','warn','ok','ok'];
   applyStatuses();
 }
 
