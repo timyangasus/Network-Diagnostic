@@ -162,13 +162,12 @@ body{display:flex;align-items:center;justify-content:center}
         <div style="font-size:18px;font-weight:600;text-align:center;margin-bottom:4px">切換診斷情境</div>
         <div style="font-size:13px;color:var(--t3);text-align:center;margin-bottom:14px">Demo 用，選擇要展示的畫面</div>
         <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('success')"><div class="sb" style="background:#65C4B9"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span style="font-weight:600">都正常</span></div>
-        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('fail')"><div class="sb" style="background:#D95B47"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></div><span style="font-weight:600">有錯誤 ✕</span></div>
+        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('warn')"><div class="sb" style="background:#FF9643"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="12" y1="6" x2="12" y2="13"/><line x1="12" y1="17.6" x2="12.01" y2="17.6" stroke-width="4"/></svg></div><span style="font-weight:600">不穩</span></div>
+        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('fail')"><div class="sb" style="background:#D95B47"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></div><span style="font-weight:600">有錯誤</span></div>
         <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('mixed')"><div class="sb" style="background:linear-gradient(135deg,#FF9643 50%,#D95B47 50%)"></div><span style="font-weight:600">錯誤＋不穩</span></div>
         <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('dns')"><div class="sb" style="background:#D95B47"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></div><span style="font-weight:600">DNS 異常</span></div>
-        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('warn')"><div class="sb" style="background:#FF9643"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="12" y1="6" x2="12" y2="13"/><line x1="12" y1="17.6" x2="12.01" y2="17.6" stroke-width="4"/></svg></div><span style="font-weight:600">不穩 ！</span></div>
         <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('warndns')"><div class="sb" style="background:linear-gradient(135deg,#FF9643 50%,#D95B47 50%)"></div><span style="font-weight:600">Ping 不穩＋DNS 異常</span></div>
-        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start;border-bottom:none" onclick="hide('ov-demo');demoJump('faildns')"><div class="sb" style="background:linear-gradient(135deg,#D95B47 50%,#A93D2E 50%)"></div><span style="font-weight:600">Ping 異常＋DNS 異常</span></div>
-      </div>
+        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start;border-bottom:none" onclick="hide('ov-demo');demoJump('faildns')"><div class="sb" style="background:linear-gradient(135deg,#D95B47 50%,#A93D2E 50%)"></div><span style="font-weight:600">Ping 異常＋DNS 異常</span></div></div>
     </div>
   </div>
 
@@ -217,14 +216,15 @@ var ICON={
 /* per-layer result: ok | warn(ping partly failed) | fail(ping all failed) | dns(ping ok, DNS failed)
    | warndns(ping partly failed + DNS failed) | faildns(ping + DNS failed). Anything but ok/warn is ❌ and stops the run. */
 var SCENARIOS=[
-  ['ok','ok','ok','ok'],
-  ['ok','fail','pending','pending'],
-  ['ok','warn','fail','pending'],
-  ['ok','warn','ok','warn'],        /* 只有不穩，沒有異常：⚠ 不中斷，一路檢查到最後 */
-  ['ok','ok','dns','pending'],      /* Ping 都成功，但 Gateway 的 DNS 失敗 → ❌ 停止 */
-  ['ok','warndns','pending','pending'],  /* Router：Ping 不穩＋DNS 失敗 → ❌ 停止，兩個提示都顯示 */
-  ['ok','ok','faildns','pending']   /* Gateway：Ping 失敗＋DNS 失敗 → ❌ 停止，兩個提示都顯示 */
+  ['ok','ok','ok','ok'],               /* 1 都正常 */
+  ['ok','warn','ok','warn'],           /* 2 不穩：⚠ 不中斷，一路檢查到最後 */
+  ['ok','fail','pending','pending'],   /* 3 有錯誤（Ping 異常）→ ❌ 停止 */
+  ['ok','warn','fail','pending'],      /* 4 錯誤＋不穩 */
+  ['ok','ok','dns','pending'],         /* 5 DNS 異常：Ping 都成功，但 Gateway 的 DNS 失敗 → ❌ 停止 */
+  ['ok','warndns','pending','pending'],/* 6 Ping 不穩＋DNS 異常（Router） */
+  ['ok','ok','faildns','pending']      /* 7 Ping 異常＋DNS 異常（Gateway） */
 ];
+var ENTRY_SCENARIO=2;                  /* 首頁「詳細診斷」進來時用的情境（有錯誤） */
 function sev(st){return (st==='fail'||st==='dns'||st==='warndns'||st==='faildns')?'fail':(st==='ok'||st==='warn'?st:st)}
 function pend(){return STEPS.map(function(){return 'pending';})}
 var statuses=pend();
@@ -356,7 +356,7 @@ function openDiag(from,autorun){
   origin=from;
   setIdle();
   gotoPage('pg-diag');
-  if(autorun) runDiag(1);   /* 詳細診斷 from the abnormal bar → straight into 診斷中 */
+  if(autorun) runDiag(ENTRY_SCENARIO);   /* 詳細診斷 from the abnormal bar → straight into 診斷中 */
 }
 function backFromDiag(){
   setIdle();
