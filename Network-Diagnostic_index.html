@@ -23,7 +23,7 @@ body{display:flex;align-items:center;justify-content:center}
 .page.on{display:flex}
 .ov{display:none;position:absolute;inset:0;z-index:20;background:rgba(12,17,32,.5);align-items:flex-end}
 .ov.on{display:flex}
-.sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;padding:20px 20px 40px}
+.sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;padding:20px 20px 40px;max-height:88%;overflow-y:auto}
 .hdl{width:36px;height:4px;background:#CDD3E8;border-radius:2px;margin:0 auto 18px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -57,6 +57,8 @@ body{display:flex;align-items:center;justify-content:center}
 .row .desc{font-size:11px;color:var(--t3);margin-top:-3px;line-height:1.5}
 .row .box{margin:7px 26px 0 0;background:#FCF0EE;border:1px solid var(--fail);border-radius:8px;padding:9px 12px}
 .row .box b{display:block;font-size:12px;color:var(--fail);margin-bottom:3px}
+.row .box.warn{background:#FFF6EA;border-color:#FF9643}
+.row .box.warn b{color:#E8821F}
 .row .box span{font-size:11px;color:#7C7C7C;line-height:1.5;display:block}
 .sb{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .dash{font-size:14px;color:#8B939A;letter-spacing:2px}
@@ -162,7 +164,9 @@ body{display:flex;align-items:center;justify-content:center}
         <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('fail')"><div class="sb" style="background:#D95B47"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></div><span style="font-weight:600">有錯誤 ✕</span></div>
         <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('mixed')"><div class="sb" style="background:linear-gradient(135deg,#FF9643 50%,#D95B47 50%)"></div><span style="font-weight:600">錯誤＋不穩</span></div>
         <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('dns')"><div class="sb" style="background:#D95B47"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></div><span style="font-weight:600">DNS 異常</span></div>
-        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start;border-bottom:none" onclick="hide('ov-demo');demoJump('warn')"><div class="sb" style="background:#FF9643"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="12" y1="6" x2="12" y2="13"/><line x1="12" y1="17.6" x2="12.01" y2="17.6" stroke-width="4"/></svg></div><span style="font-weight:600">不穩 ！</span></div>
+        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('warn')"><div class="sb" style="background:#FF9643"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><line x1="12" y1="6" x2="12" y2="13"/><line x1="12" y1="17.6" x2="12.01" y2="17.6" stroke-width="4"/></svg></div><span style="font-weight:600">不穩 ！</span></div>
+        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start" onclick="hide('ov-demo');demoJump('warndns')"><div class="sb" style="background:linear-gradient(135deg,#FF9643 50%,#D95B47 50%)"></div><span style="font-weight:600">Ping 不穩＋DNS 異常</span></div>
+        <div class="listrow" style="padding:0 4px;gap:12px;justify-content:flex-start;border-bottom:none" onclick="hide('ov-demo');demoJump('faildns')"><div class="sb" style="background:linear-gradient(135deg,#D95B47 50%,#A93D2E 50%)"></div><span style="font-weight:600">Ping 異常＋DNS 異常</span></div>
       </div>
     </div>
   </div>
@@ -194,6 +198,7 @@ var DNS_FAIL={
   internet:{title:'網域名稱解析異常。',               lines:['部分網站暫時無法使用，請稍後再試。若問題持續，請聯絡網路服務供應商。']}
 };
 var WARN_DESC='偵測到此段連線偶有中斷，可能影響上網穩定性。';
+var WARN_COPY={title:'此段連線不穩定。',lines:[WARN_DESC]};
 var COLOR={ok:'#65C4B9',warn:'#FF9643',fail:'#D95B47'};
 var THEME={ /* c: top / body / light fade colours, btn: button text colour */
   idle:   {c:['#57B7FF','#5EC5FF','#CDF1FF'],btn:'#283745'},
@@ -215,7 +220,9 @@ var SCENARIOS=[
   ['ok','fail','pending','pending'],
   ['ok','warn','fail','pending'],
   ['ok','warn','ok','warn'],        /* 只有不穩，沒有異常：⚠ 不中斷，一路檢查到最後 */
-  ['ok','ok','dns','pending']       /* Ping 都成功，但 Gateway 的 DNS 失敗 → ❌ 停止 */
+  ['ok','ok','dns','pending'],      /* Ping 都成功，但 Gateway 的 DNS 失敗 → ❌ 停止 */
+  ['ok','warndns','pending','pending'],  /* Router：Ping 不穩＋DNS 失敗 → ❌ 停止，兩個提示都顯示 */
+  ['ok','ok','faildns','pending']   /* Gateway：Ping 失敗＋DNS 失敗 → ❌ 停止，兩個提示都顯示 */
 ];
 function sev(st){return (st==='fail'||st==='dns'||st==='warndns'||st==='faildns')?'fail':(st==='ok'||st==='warn'?st:st)}
 function pend(){return STEPS.map(function(){return 'pending';})}
@@ -231,15 +238,16 @@ function statusIcon(st){
   return '<span class="dash">--</span>';
 }
 
-function box(fc){return '<div class="box"><b>'+fc.title+'</b>'+fc.lines.map(function(l){return '<span>'+(fc.lines.length>1?'• ':'')+l+'</span>';}).join('')+'</div>';}
+function box(fc,tone){return '<div class="box'+(tone?' '+tone:'')+'"><b>'+fc.title+'</b>'+fc.lines.map(function(l){return '<span>'+(fc.lines.length>1?'• ':'')+l+'</span>';}).join('')+'</div>';}
 function renderSteps(){
   var clickable=(state==='warn'||state==='fail');
   g('steps').innerHTML=STEPS.map(function(s,i){
     var st=statuses[i], extra='';
     var pf=(st==='fail'||st==='faildns'), df=(st==='dns'||st==='warndns'||st==='faildns');
-    if(st==='warn'||st==='warndns') extra+='<div class="desc">'+WARN_DESC+'</div>';
-    if(pf) extra+=box(PING_FAIL[s.key]);
-    if(df) extra+=box(DNS_FAIL[s.key]);
+    var tone=(pf||df)?'':'warn';             /* any error → every callout in the row is red; ping-unstable alone → yellow */
+    if(st==='warn'||st==='warndns') extra+=box(WARN_COPY,tone);
+    if(pf) extra+=box(PING_FAIL[s.key],tone);
+    if(df) extra+=box(DNS_FAIL[s.key],tone);
     return '<div class="row"'+(clickable?' onclick="cycleStep('+i+')" style="cursor:pointer"':'')+'>'
       +(i<STEPS.length-1?'<div class="line"></div>':'')
       +'<div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5F6368" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+s.icon+'</svg></div>'
@@ -330,6 +338,8 @@ function demoJump(kind){
     :kind==='fail'?['ok','fail','pending','pending']
     :kind==='mixed'?['ok','warn','fail','pending']
     :kind==='dns'?['ok','ok','dns','pending']
+    :kind==='warndns'?['ok','warndns','pending','pending']
+    :kind==='faildns'?['ok','ok','faildns','pending']
     :['ok','warn','ok','ok'];
   applyStatuses();
 }
